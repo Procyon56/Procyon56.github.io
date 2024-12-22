@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendrier des Jeux</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(120deg, #fa84e8, #8fd3f4);
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #444;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+        input:focus {
+            border-color: #fa84e8;
+            outline: none;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #fa84e8;
+            color: #fff;
+            font-size: 1.1em;
+            font-weight: bold;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #8fd3f4;
+        }
+        h2 {
+            text-align: center;
+            color: #555;
+            margin-top: 30px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background: #f9f9f9;
+            margin: 5px 0;
+            padding: 15px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            font-size: 1em;
+            font-weight: 500;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        li:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .not-found {
+            text-align: center;
+            color: #e74c3c;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <button onclick="window.location.href='tournoi.html'" style="padding: 10px 20px; background: #53f08c; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 1em;">retour </button>
+    <div class="container">
+        <h1>Calendrier des Jeux</h1>
+        <label for="teamName">Entrez le nom de l'équipe :</label>
+        <input type="text" id="teamName" placeholder="Exemple : Équipe A">
+        <button onclick="showGames()">Afficher les jeux</button>
+        <h2>Prochains jeux :</h2>
+        <ul id="gamesList"></ul>
+    </div>
+
+    <script>
+        // Données des matchs
+        const teamGames = {
+            "equipe 1": ["Match 1 - Minecraft", "Match 2 - Trials Rising", "Match 3 - Mario Kart 8", "Match 4 - Mario Party", "Match 5 - Smash Bros Ultimate"],
+            "equipe 2": ["Match 1 - Trials Rising", "Match 2 - Minecraft", "Match 3 - FIFA", "Match 4 - Boomrang fu", "Match 5 - Mario Kart 8"],
+            "equipe 3": ["Match 1 - Minecraft", "Match 2 - Ping VR", "Match 3 - Smash Bros Ultimate", "Match 4 - Trials Rising", "Match 5 - Mario Party"],
+            "equipe 4": ["Match 1 - Trials Rising", "Match 2 - FIFA", "Match 3 - Ping VR", "Match 4 - Minecraft", "Match 5 - Boomrang fu"],
+            "equipe 5": ["Match 1 - FIFA", "Match 2 - Trials Rising", "Match 3 - Minecraft", "Match 4 - Ping VR", "Match 5 - Smash Bros Ultimate"],
+            "equipe 6": ["Match 1 - Ping VR", "Match 2 - Minecraft", "Match 3 - Mario Party", "Match 4 - FIFA", "Match 5 - Trials Rising"],
+            "equipe 7": ["Match 1 - FIFA", "Match 2 - Ping VR", "Match 3 - Boomrang fu", "Match 4 - Mario Kart 8", "Match 5 - Smash Bros Ultimate"],
+            "equipe 8": ["Match 1 - Ping VR", "Match 2 - FIFA", "Match 3 - Trials Rising", "Match 4 - Smash Bros Ultimate", "Match 5 - Mario Kart 8"],
+            "equipe 9": ["Match 1 - Mario Kart 8", "Match 2 - Smash Bros Ultimate", "Match 3 - Trials Rising", "Match 4 - FIFA", "Match 5 - Boomrang fu"],
+            "equipe 10": ["Match 1 - Smash Bros Ultimate", "Match 2 - Mario Kart 8", "Match 3 - Boomrang fu", "Match 4 - Ping VR", "Match 5 - Mario Party"],
+            "equipe 11": ["Match 1 - Mario Kart 8", "Match 2 - Boomrang fu", "Match 3 - Mario Party", "Match 4 - Smash Bros Ultimate", "Match 5 - Trials Rising"],
+            "equipe 12": ["Match 1 - Smash Bros Ultimate", "Match 2 - Mario Party", "Match 3 - Minecraft", "Match 4 - Mario Kart 8", "Match 5 - Ping VR"],
+            "equipe 13": ["Match 1 - Mario Party", "Match 2 - Smash Bros Ultimate", "Match 3 - Ping VR", "Match 4 - Boomrang fu", "Match 5 - Trials Rising"],
+            "equipe 14": ["Match 1 - Boomrang fu", "Match 2 - Mario Kart 8", "Match 3 - Smash Bros Ultimate", "Match 4 - Mario Party", "Match 5 - Ping VR"],
+            "equipe 15": ["Match 1 - Mario Party", "Match 2 - Boomrang fu", "Match 3 - FIFA", "Match 4 - Minecraft", "Match 5 - Trials Rising"],
+            "equipe 16": ["Match 1 - Boomrang fu", "Match 2 - Mario Party", "Match 3 - Mario Kart 8", "Match 4 - Trials Rising", "Match 5 - Smash Bros Ultimate"],
+
+        };
+
+        // Fonction pour afficher les matchs
+        function showGames() {
+            const teamName = document.getElementById("teamName").value.trim();
+            const gamesList = document.getElementById("gamesList");
+            gamesList.innerHTML = ""; // Réinitialiser la liste
+
+            if (teamGames[teamName]) {
+                teamGames[teamName].forEach(game => {
+                    const listItem = document.createElement("li");
+                    listItem.textContent = game;
+                    gamesList.appendChild(listItem);
+                });
+            } else {
+                gamesList.innerHTML = `<li class="not-found">Aucun jeu trouvé pour l'équipe "${teamName}".</li>`;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tournoi avec Demi-Finales, Poules Additionnelles et Finales</title>
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            color: #ff4081;
+            margin-top: 50px;
+            font-size: 3em;
+        }
+
+        h2 {
+            color: #2196f3;
+            text-align: center;
+            font-size: 2em;
+            margin-top: 30px;
+        }
+
+        /* Container */
+        .container {
+            width: 90%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        button {
+            background-color: #ff4081;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin-top: 20px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #e040fb;
+        }
+
+        /* Table Styles */
+        table {
+            width: 100%;
+            margin: 20px 0;
+            border-collapse: collapse;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #ddd;
+            font-size: 1.1em;
+        }
+
+        th {
+            background-color: #ff4081;
+            color: white;
+            font-weight: bold;
+        }
+
+        td {
+            background-color: #f9f9f9;
+        }
+
+        td input[type="number"] {
+            width: 80px;
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 1.1em;
+            text-align: center;
+        }
+
+        td input[type="number"]:focus {
+            border-color: #ff4081;
+        }
+
+        tr:hover td {
+            background-color: #f1f1f1;
+        }
+
+        /* Styling for the different sections */
+        .section {
+            margin-top: 30px;
+        }
+
+        .section table {
+            width: 80%;
+            margin: 0 auto;
+        }
+
+        /*séparation des poules */
+        .poules-container {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .poule {
+            width: 45%;
+            border: 2px solid #2196f3;
+            border-radius: 8px;
+            background: linear-gradient(to bottom, #f0f8ff, #e6f7ff);
+            padding: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .poule h3 {
+            text-align: center;
+            color: #2196f3;
+            margin-bottom: 10px;
+        }
+
+        .poule table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+
+        .poule table th, .poule table td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #ddd;
+            font-size: 1em;
+        }
+
+        .poule table th {
+            background-color: #2196f3;
+            color: white;
+        }
+
+        .poule table td {
+            background-color: #f9f9f9;
+        }
+        /* séparation des demis finales*/
+        .demi-finales-container {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .demi-finale {
+            width: 45%;
+            border: 2px solid #2196f3;
+            border-radius: 8px;
+            background: linear-gradient(to bottom, #f0f8ff, #e6f7ff);
+            padding: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .demi-finale h3 {
+            text-align: center;
+            color: #2196f3;
+            margin-bottom: 10px;
+        }
+
+        .demi-finale table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+
+        .demi-finale table th, .demi-finale table td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #ddd;
+            font-size: 1em;
+        }
+
+        .demi-finale table th {
+            background-color: #2196f3;
+            color: white;
+        }
+
+        .demi-finale table td {
+            background-color: #f9f9f9;
+        }
+
+        /* séparation des consolantes*/
+        .consolantes-container {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .consolante {
+            width: 45%;
+            border: 2px solid #2196f3;
+            border-radius: 8px;
+            background: linear-gradient(to bottom, #f0f8ff, #e6f7ff);
+            padding: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .consolante h3 {
+            text-align: center;
+            color: #2196f3;
+            margin-bottom: 10px;
+        }
+
+        .consolante table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+
+        .consolante table th, .consolante table td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #ddd;
+            font-size: 1em;
+        }
+
+        .consolante table th {
+            background-color: #2196f3;
+            color: white;
+        }
+
+        .consolante table td {
+            background-color: #f9f9f9;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>Arbre de Tournoi</h1>
+    <div class="container">
+        <h2>Classement Initial</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Équipe</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
+            <tbody id="classement">
+                <script>
+                    for (let i = 1; i <= 16; i++) {
+                        document.write(`
+                            <tr>
+                                <td>${i}</td>
+                                <td>Équipe ${i}</td>
+                                <td><input type="number" class="score-input" id="score-${i}" /></td>
+                            </tr>
+                        `);
+                    }
+                </script>
+            </tbody>
+        </table>
+
+        <button onclick="genererPoules()">Générer les Poules</button>
+        <button onclick="window.location.href='liste_jeux.html'" style="padding: 10px 20px; background: #53f08c; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 1em;">liste jeux </button>
+        
+        
+
+        <div class="section">
+            <h2>Poules</h2>
+            <div class="poules-container">
+                <!-- Poule 1 -->
+                <div class="poule">
+                    <h3>Poule 1</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Équipe</th>
+                                <th>Score</th>
+                            </tr>
+                        </thead>
+                        <tbody id="poule1">
+                            <!-- Équipes Poule 1 -->
+                        </tbody>
+                    </table>
+                </div>
+        
+                <!-- Poule 2 -->
+                <div class="poule">
+                    <h3>Poule 2</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Équipe</th>
+                                <th>Score</th>
+                            </tr>
+                        </thead>
+                        <tbody id="poule2">
+                            <!-- Équipes Poule 2 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <button onclick="genererDemiFinalesEtPoules()">Générer les Demi-Finales et les consolantes</button>
+
+        <div class="section">
+            <h2>Demi-Finales</h2>
+            <div class="demi-finales-container">
+                <!-- demi-finale 1 -->
+                <div class="demi-finale">
+                    <h3>demi-finale 1</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Équipe</th>
+                                <th>Score</th>
+                            </tr>
+                        </thead>
+                        <tbody id="demi-finale1">
+                            <!-- Équipes demi-finale 1 -->
+                        </tbody>
+                    </table>
+                </div>
+        
+                <!-- demi-finale 2 -->
+                <div class="demi-finale">
+                    <h3>demi-finale 2</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Équipe</th>
+                                <th>Score</th>
+                            </tr>
+                        </thead>
+                        <tbody id="demi-finale2">
+                            <!-- Équipes demi-finale 2 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Consolante</h2>
+            <div class="consolantes-container">
+                <!-- consolante 1 -->
+                <div class="consolante">
+                    <h3>5-8</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Équipe</th>
+                                <th>Score</th>
+                            </tr>
+                        </thead>
+                        <tbody id="consolante1">
+                            <!-- Équipes consolante1 -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- consolante 2 -->
+                <div class="consolante">
+                    <h3>9-12</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Équipe</th>
+                                <th>Score</th>
+                            </tr>
+                        </thead>
+                        <tbody id="consolante2">
+                            <!-- Équipes consolante2 -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- consolante 3 -->
+                <div class="consolante">
+                    <h3>13-16</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Équipe</th>
+                                <th>Score</th>
+                            </tr>
+                        </thead>
+                        <tbody id="consolante3">
+                            <!-- Équipes consolante3 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <button onclick="genererFinales()">Générer les Finales</button>
+        <div class="section">
+            <h2>Finales</h2>
+            <div class="demi-finales-container">
+                <!-- finale -->
+                <div class="demi-finale">
+                    <h3>Finale</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Équipe</th>
+                                <th>Score</th>
+                            </tr>
+                        </thead>
+                        <tbody id="finale">
+                            <!-- Équipes finale -->
+                        </tbody>
+                    </table>
+                </div>
+        
+                <!-- petite-finale  -->
+                <div class="demi-finale">
+                    <h3>Petite Finale</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Équipe</th>
+                                <th>Score</th>
+                            </tr>
+                        </thead>
+                        <tbody id="petite finale">
+                            <!-- Équipes petite finale -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let poule1 = [];
+        let poule2 = [];
+        let demiFinales = [];
+        let poulesAdditionnelles = [];
+
+        
+        
+        function genererPoules() {
+            const equipes = [];
+            for (let i = 1; i <= 16; i++) {
+                const score = parseInt(document.getElementById(`score-${i}`).value) || 0;
+                equipes.push({ nom: `Équipe ${i}`, score });
+            }
+
+            // Trier les équipes par score décroissant
+            equipes.sort((a, b) => b.score - a.score);
+
+            // Répartition selon le critère spécifié
+            poule1 = [
+                equipes[0], equipes[2], equipes[4], equipes[6],
+                equipes[9], equipes[11], equipes[13], equipes[15]
+            ];
+            poule2 = [
+                equipes[1], equipes[3], equipes[5], equipes[7],
+                equipes[8], equipes[10], equipes[12], equipes[14]
+            ];
+
+            // Remplir Poule 1
+            const poule1Tbody = document.getElementById("poule1");
+            poule1Tbody.innerHTML = "";
+            poule1.forEach((equipe, i) => {
+                poule1Tbody.innerHTML += `
+                    <tr>
+                        <td>${equipe.nom}</td>
+                        <td><input type="number" class="score-input" id="poule1-score-${i}" /></td>
+                    </tr>
+                `;
+            });
+
+            // Remplir Poule 2
+            const poule2Tbody = document.getElementById("poule2");
+            poule2Tbody.innerHTML = "";
+            poule2.forEach((equipe, i) => {
+                poule2Tbody.innerHTML += `
+                    <tr>
+                        <td>${equipe.nom}</td>
+                        <td><input type="number" class="score-input" id="poule2-score-${i}" /></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function genererDemiFinalesEtPoules() {
+            poule1.forEach((equipe, i) => {
+                equipe.score = parseInt(document.getElementById(`poule1-score-${i}`).value) || 0;
+            });
+            poule2.forEach((equipe, i) => {
+                equipe.score = parseInt(document.getElementById(`poule2-score-${i}`).value) || 0;
+            });
+
+            poule1.sort((a, b) => b.score - a.score);
+            poule2.sort((a, b) => b.score - a.score);
+
+            // Demi-Finales
+            demiFinale1 = [
+                { nom: poule1[0].nom, score: poule1[0].score },
+                { nom: poule2[1].nom, score: poule2[1].score }
+            ];
+            demiFinale2 = [
+                { nom: poule2[0].nom, score: poule2[0].score },
+                { nom: poule1[1].nom, score: poule1[1].score }
+            ];
+
+
+            const demiFinale1Tbody = document.getElementById("demi-finale1");
+            demiFinale1Tbody.innerHTML = "";
+            demiFinale1.forEach((equipe, index) => {
+                demiFinale1Tbody.innerHTML += `
+                    <tr>
+                        <td>${equipe.nom}</td>
+                        <td><input type="number" class="score-input" id="demi1-score-${index}" /></td>
+                    </tr>
+                `;
+            });
+
+            const demiFinale2Tbody = document.getElementById("demi-finale2");
+            demiFinale2Tbody.innerHTML = "";
+            demiFinale2.forEach((equipe, index) => {
+                demiFinale2Tbody.innerHTML += `
+                    <tr>
+                        <td>${equipe.nom}</td>
+                        <td><input type="number" class="score-input" id="demi2-score-${index}" /></td>
+                    </tr>
+                `;
+            });
+
+            //Consolantes
+            consolante1 = [
+                { nom: poule1[2].nom, score: poule1[2].score },
+                { nom: poule2[2].nom, score: poule2[2].score },
+                { nom: poule1[3].nom, score: poule1[3].score },
+                { nom: poule2[3].nom, score: poule2[3].score }
+            ];
+
+            consolante2 = [
+                { nom: poule2[4].nom, score: poule2[4].score },
+                { nom: poule1[4].nom, score: poule1[4].score },
+                { nom: poule1[5].nom, score: poule1[5].score },
+                { nom: poule2[5].nom, score: poule2[5].score }
+            ];
+
+            consolante3 = [
+                { nom: poule2[6].nom, score: poule2[6].score },
+                { nom: poule1[6].nom, score: poule1[6].score },
+                { nom: poule1[7].nom, score: poule1[7].score },
+                { nom: poule2[7].nom, score: poule2[7].score }
+            ];
+
+            const consolante1Tbody = document.getElementById("consolante1");
+            consolante1Tbody.innerHTML = "";
+            consolante1.forEach((equipe, index) => {
+                consolante1Tbody.innerHTML += `
+                    <tr>
+                        <td>${equipe.nom}</td>
+                        <td><input type="number" class="score-input" id="conso1-score-${index}" /></td>
+                    </tr>
+                `;
+            });
+
+            const consolante2Tbody = document.getElementById("consolante2");
+            consolante2Tbody.innerHTML = "";
+            consolante2.forEach((equipe, index) => {
+                consolante2Tbody.innerHTML += `
+                    <tr>
+                        <td>${equipe.nom}</td>
+                        <td><input type="number" class="score-input" id="conso2-score-${index}" /></td>
+                    </tr>
+                `;
+            });
+
+            const consolante3Tbody = document.getElementById("consolante3");
+            consolante3Tbody.innerHTML = "";
+            consolante3.forEach((equipe, index) => {
+                consolante3Tbody.innerHTML += `
+                    <tr>
+                        <td>${equipe.nom}</td>
+                        <td><input type="number" class="score-input" id="conso3-score-${index}" /></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function genererFinales() {
+            const finaleTbody = document.getElementById("finales");
+            // Finales
+            Finale = [
+                { nom: demiFinale1[0].nom, score: demiFinale1[0].score },
+                { nom: demiFinale2[0].nom, score: demiFinale2[0].score }
+            ];
+            petite_finale = [
+                { nom: poule2[1].nom, score: poule2[1].score },
+                { nom: poule1[1].nom, score: poule1[1].score }
+            ];
+
+            const FinaleTbody = document.getElementById("finale");
+            FinaleTbody.innerHTML = "";
+            Finale.forEach((equipe, index) => {
+                FinaleTbody.innerHTML += `
+                    <tr>
+                        <td>${equipe.nom}</td>
+                        <td><input type="number" class="score-input" id="finale-score-${index}" /></td>
+                    </tr>
+                `;
+            });
+
+            const petite_finaleTbody = document.getElementById("petite finale");
+            petite_finaleTbody.innerHTML = "";
+            petite_finale.forEach((equipe, index) => {
+                petite_finaleTbody.innerHTML += `
+                    <tr>
+                        <td>${equipe.nom}</td>
+                        <td><input type="number" class="score-input" id="pfinale-score-${index}" /></td>
+                    </tr>
+                `;
+            });
+        }
+    </script>
+
+</body>
+</html>
