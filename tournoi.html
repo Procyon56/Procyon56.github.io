@@ -244,7 +244,7 @@
 
     <h1>Arbre de Tournoi</h1>
     <div class="container">
-        <h2>Classement Initial</h2>
+        <h2>Classement Squiz</h2>
         <table>
             <thead>
                 <tr>
@@ -254,21 +254,10 @@
                 </tr>
             </thead>
             <tbody id="classement">
-                <script>
-                    for (let i = 1; i <= 16; i++) {
-                        document.write(`
-                            <tr>
-                                <td>${i}</td>
-                                <td>Équipe ${i}</td>
-                                <td><input type="number" class="score-input" id="score-${i}" /></td>
-                            </tr>
-                        `);
-                    }
-                </script>
             </tbody>
         </table>
 
-        <button onclick="genererPoules()">Générer les Poules</button>
+        <button onclick="sauvegarderScores()">Sauvegarder Scores</button>
         <button onclick="window.location.href='liste_jeux.html'" style="padding: 10px 20px; background: #53f08c; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 1em;">liste jeux </button>
         
         
@@ -309,8 +298,7 @@
                 </div>
             </div>
         </div>
-        
-        <button onclick="genererDemiFinalesEtPoules()">Générer les Demi-Finales et les consolantes</button>
+
 
         <div class="section">
             <h2>Demi-Finales</h2>
@@ -454,7 +442,7 @@
             const equipes = [];
             for (let i = 1; i <= 16; i++) {
                 const score = parseInt(document.getElementById(`score-${i}`).value) || 0;
-                equipes.push({ nom: `Équipe ${i}`, score });
+                equipes.push({ id: i, nom: document.getElementById(`team-name-${i}`).value });
             }
 
             // Trier les équipes par score décroissant
@@ -628,6 +616,159 @@
                     </tr>
                 `;
             });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const tbody = document.getElementById('classement');
+            for (let i = 1; i <= 16; i++) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${i}</td>
+                    <td><input type="text" class="team-name-input" id="team-name-${i}" value="Équipe ${i}" /></td>
+                    <td><input type="number" class="score-input" id="score-${i}" /></td>
+                `;
+                tbody.appendChild(row);
+            }
+            chargerScores();
+        });
+        function sauvegarderScores() {
+            const scores = [];
+            for (let i = 1; i <= 16; i++) {
+                const nom = document.getElementById(`team-name-${i}`).value || `Équipe ${i}`;
+                const score = parseInt(document.getElementById(`score-${i}`).value) || 0;
+                scores.push({nom, score});
+            }
+            localStorage.setItem('scores', JSON.stringify(scores));
+            alert('Scores sauvegardés !');
+
+            const resultatsPoules = { poule1: [], poule2: [] };
+
+            // Sauvegarder les scores de Poule 1
+            poule1.forEach((equipe, i) => {
+                const score = parseInt(document.getElementById(`poule1-score-${i}`).value) || 0;
+                resultatsPoules.poule1.push({ nom: equipe.nom, score });
+            });
+
+            // Sauvegarder les scores de Poule 2
+            poule2.forEach((equipe, i) => {
+                const score = parseInt(document.getElementById(`poule2-score-${i}`).value) || 0;
+                resultatsPoules.poule2.push({ nom: equipe.nom, score });
+            });
+
+            localStorage.setItem('resultatsPoules', JSON.stringify(resultatsPoules));
+            
+            const resultatsDemiFinales = {demiFinale1: [], demiFinale2: []};
+
+            // Sauvegarder les scores de la demi Finale 1
+            demiFinale1.forEach((equipe, i) => {
+                const score = parseInt(document.getElementById(`demi1-score-${i}`).value) || 0;
+                resultatsDemiFinales.demiFinale1.push({ nom: equipe.nom, score });
+            });
+
+            // Sauvegarder les scores de la demi Finale 2
+            demiFinale2.forEach((equipe, i) => {
+                const score = parseInt(document.getElementById(`demi2-score-${i}`).value) || 0;
+                resultatsDemiFinales.demiFinale2.push({ nom: equipe.nom, score });
+            });
+
+            localStorage.setItem('resultatsDemiFinales', JSON.stringify(resultatsDemiFinales));
+
+            const resultatsConsolantes = {consolante1: [], consolante2: [], consolante3: []};
+            
+            // Sauvegarder les scores de la consolante 1
+            consolante1.forEach((equipe, i) => {
+                const score = parseInt(document.getElementById(`conso1-score-${i}`).value) || 0;
+                resultatsConsolantes.consolante1.push({ nom: equipe.nom, score });
+            });
+
+            // Sauvegarder les scores de la consolante 2
+            consolante2.forEach((equipe, i) => {
+                const score = parseInt(document.getElementById(`conso2-score-${i}`).value) || 0;
+                resultatsConsolantes.consolante2.push({ nom: equipe.nom, score });
+            });
+
+            // Sauvegarder les scores de la consolante 3
+            consolante3.forEach((equipe, i) => {
+                const score = parseInt(document.getElementById(`conso3-score-${i}`).value) || 0;
+                resultatsConsolantes.consolante3.push({ nom: equipe.nom, score });
+            });
+
+            localStorage.setItem('resultatsConsolantes', JSON.stringify(resultatsConsolantes));
+        }
+
+        function chargerScores() {
+            const scores = JSON.parse(localStorage.getItem('scores')) || [];
+            scores.forEach((score, i) => {
+                const nameInput = document.getElementById(`team-name-${i + 1}`);
+                const scoreInput = document.getElementById(`score-${i + 1}`);
+                if (scoreInput) scoreInput.value = score.score;
+                if (nameInput) nameInput.value = score.nom;
+            });
+            genererPoules();
+
+            const resultatsPoules = JSON.parse(localStorage.getItem('resultatsPoules')) || { poule1: [], poule2: [] };
+
+            // Charger les scores de Poule 1
+            resultatsPoules.poule1.forEach((equipe, i) => {
+                const input = document.getElementById(`poule1-score-${i}`);
+                if (input) {
+                    input.value = equipe.score;
+                }
+            });
+
+            // Charger les scores de Poule 2
+            resultatsPoules.poule2.forEach((equipe, i) => {
+                const input = document.getElementById(`poule2-score-${i}`);
+                if (input) {
+                    input.value = equipe.score;
+                }
+            });
+            genererDemiFinalesEtPoules();
+
+            const resultatsDemiFinales = JSON.parse(localStorage.getItem('resultatsDemiFinales')) || { demiFinale1: [], demiFinale2: [] };
+
+            // Charger les scores de Demi finale 1
+            resultatsDemiFinales.demiFinale1.forEach((equipe, i) => {
+                const input = document.getElementById(`demi1-score-${i}`);
+                if (input) {
+                    input.value = equipe.score;
+                }
+            });
+
+            // Charger les scores de Demi finale 2
+            resultatsDemiFinales.demiFinale2.forEach((equipe, i) => {
+                const input = document.getElementById(`demi2-score-${i}`);
+                if (input) {
+                    input.value = equipe.score;
+                }
+            });
+
+            const resultatsConsolantes = JSON.parse(localStorage.getItem('resultatsConsolantes')) || { consolante1: [], consolante2: [], consolante3: [] };
+
+            // Charger les scores de Consolante 1
+            resultatsConsolantes.consolante1.forEach((equipe, i) => {
+                const input = document.getElementById(`conso1-score-${i}`);
+                if (input) {
+                    input.value = equipe.score;
+                }
+            });
+
+            // Charger les scores de Consolante 2
+            resultatsConsolantes.consolante2.forEach((equipe, i) => {
+                const input = document.getElementById(`conso2-score-${i}`);
+                if (input) {
+                    input.value = equipe.score;
+                }
+            });
+
+            // Charger les scores de Consolante 3
+            resultatsConsolantes.consolante3.forEach((equipe, i) => {
+                const input = document.getElementById(`conso3-score-${i}`);
+                if (input) {
+                    input.value = equipe.score;
+                }
+            });
+
         }
     </script>
 
