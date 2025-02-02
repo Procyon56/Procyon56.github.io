@@ -150,6 +150,7 @@
         .poule table td {
             background-color: #f9f9f9;
         }
+
         /* séparation des demis finales*/
         .demi-finales-container {
             display: flex;
@@ -239,6 +240,489 @@
         }
 
     </style>
+
+    <!-- Import des SDKs Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.19.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.19.1/firebase-database-compat.js"></script>
+
+    <script>
+    // =========================
+    // Configuration Firebase
+    // =========================
+    const firebaseConfig = {
+        apiKey: "AIzaSyA6jmNvyhrVmRmJHEpc0MQU89a5rSMgnps",
+        authDomain: "lvl-lan-4.firebaseapp.com",
+        databaseURL: "https://lvl-lan-4-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "lvl-lan-4",
+        storageBucket: "lvl-lan-4.firebasestorage.app",
+        messagingSenderId: "870657064560",
+        appId: "1:870657064560:web:78346b8534c7752de7beb5"
+    };
+
+    // Initialiser l'app Firebase
+    firebase.initializeApp(firebaseConfig);
+    // Référence vers la base de données
+    const database = firebase.database();
+
+    // =========================
+    // Variables globales
+    // =========================
+    let poule1 = [];
+    let poule2 = [];
+    let demiFinale1 = [];
+    let demiFinale2 = [];
+    let consolante1 = [];
+    let consolante2 = [];
+    let consolante3 = [];
+    let Finale = [];
+    let petite_finale = [];
+
+    // =========================
+    // Fonctions existantes
+    // =========================
+    function genererPoules() {
+        const equipes = [];
+        for (let i = 1; i <= 16; i++) {
+            const nom = document.getElementById(`team-name-${i}`).value;
+            const score = parseInt(document.getElementById(`score-${i}`).value) || 0;
+            equipes.push({ id: i, nom, score });
+        }
+
+        // Trier les équipes par score décroissant
+        equipes.sort((a, b) => b.score - a.score);
+
+        // Répartition selon le critère spécifié
+        poule1 = [
+            equipes[0], equipes[2], equipes[4], equipes[6],
+            equipes[9], equipes[11], equipes[13], equipes[15]
+        ];
+        poule2 = [
+            equipes[1], equipes[3], equipes[5], equipes[7],
+            equipes[8], equipes[10], equipes[12], equipes[14]
+        ];
+
+        // Remplir Poule 1
+        const poule1Tbody = document.getElementById("poule1");
+        poule1Tbody.innerHTML = "";
+        poule1.forEach((equipe, i) => {
+            poule1Tbody.innerHTML += `
+                <tr>
+                    <td>${equipe.nom}</td>
+                    <td><input type="number" class="score-input" id="poule1-score-${i}" /></td>
+                </tr>
+            `;
+        });
+
+        // Remplir Poule 2
+        const poule2Tbody = document.getElementById("poule2");
+        poule2Tbody.innerHTML = "";
+        poule2.forEach((equipe, i) => {
+            poule2Tbody.innerHTML += `
+                <tr>
+                    <td>${equipe.nom}</td>
+                    <td><input type="number" class="score-input" id="poule2-score-${i}" /></td>
+                </tr>
+            `;
+        });
+    }
+
+    function genererDemiFinalesEtPoules() {
+        // Récupérer les scores de chaque poule depuis les inputs
+        poule1.forEach((equipe, i) => {
+            equipe.score = parseInt(document.getElementById(`poule1-score-${i}`).value) || 0;
+        });
+        poule2.forEach((equipe, i) => {
+            equipe.score = parseInt(document.getElementById(`poule2-score-${i}`).value) || 0;
+        });
+
+        // Trier à nouveau par score décroissant
+        poule1.sort((a, b) => b.score - a.score);
+        poule2.sort((a, b) => b.score - a.score);
+
+        // Demi-Finales
+        demiFinale1 = [
+            { nom: poule1[0].nom, score: poule1[0].score },
+            { nom: poule2[1].nom, score: poule2[1].score }
+        ];
+        demiFinale2 = [
+            { nom: poule2[0].nom, score: poule2[0].score },
+            { nom: poule1[1].nom, score: poule1[1].score }
+        ];
+
+        const demiFinale1Tbody = document.getElementById("demi-finale1");
+        demiFinale1Tbody.innerHTML = "";
+        demiFinale1.forEach((equipe, index) => {
+            demiFinale1Tbody.innerHTML += `
+                <tr>
+                    <td>${equipe.nom}</td>
+                    <td><input type="number" class="score-input" id="demi1-score-${index}" /></td>
+                </tr>
+            `;
+        });
+
+        const demiFinale2Tbody = document.getElementById("demi-finale2");
+        demiFinale2Tbody.innerHTML = "";
+        demiFinale2.forEach((equipe, index) => {
+            demiFinale2Tbody.innerHTML += `
+                <tr>
+                    <td>${equipe.nom}</td>
+                    <td><input type="number" class="score-input" id="demi2-score-${index}" /></td>
+                </tr>
+            `;
+        });
+
+        //Consolantes
+        consolante1 = [
+            { nom: poule1[2].nom, score: poule1[2].score },
+            { nom: poule2[2].nom, score: poule2[2].score },
+            { nom: poule1[3].nom, score: poule1[3].score },
+            { nom: poule2[3].nom, score: poule2[3].score }
+        ];
+
+        consolante2 = [
+            { nom: poule2[4].nom, score: poule2[4].score },
+            { nom: poule1[4].nom, score: poule1[4].score },
+            { nom: poule1[5].nom, score: poule1[5].score },
+            { nom: poule2[5].nom, score: poule2[5].score }
+        ];
+
+        consolante3 = [
+            { nom: poule2[6].nom, score: poule2[6].score },
+            { nom: poule1[6].nom, score: poule1[6].score },
+            { nom: poule1[7].nom, score: poule1[7].score },
+            { nom: poule2[7].nom, score: poule2[7].score }
+        ];
+
+        const consolante1Tbody = document.getElementById("consolante1");
+        consolante1Tbody.innerHTML = "";
+        consolante1.forEach((equipe, index) => {
+            consolante1Tbody.innerHTML += `
+                <tr>
+                    <td>${equipe.nom}</td>
+                    <td><input type="number" class="score-input" id="conso1-score-${index}" /></td>
+                </tr>
+            `;
+        });
+
+        const consolante2Tbody = document.getElementById("consolante2");
+        consolante2Tbody.innerHTML = "";
+        consolante2.forEach((equipe, index) => {
+            consolante2Tbody.innerHTML += `
+                <tr>
+                    <td>${equipe.nom}</td>
+                    <td><input type="number" class="score-input" id="conso2-score-${index}" /></td>
+                </tr>
+            `;
+        });
+
+        const consolante3Tbody = document.getElementById("consolante3");
+        consolante3Tbody.innerHTML = "";
+        consolante3.forEach((equipe, index) => {
+            consolante3Tbody.innerHTML += `
+                <tr>
+                    <td>${equipe.nom}</td>
+                    <td><input type="number" class="score-input" id="conso3-score-${index}" /></td>
+                </tr>
+            `;
+        });
+    }
+
+    function genererFinales() {
+        // On relit les scores entrés dans les demi-finales
+        demiFinale1.forEach((equipe, i) => {
+            equipe.score = parseInt(document.getElementById(`demi1-score-${i}`).value) || 0;
+        });
+        demiFinale2.forEach((equipe, i) => {
+            equipe.score = parseInt(document.getElementById(`demi2-score-${i}`).value) || 0;
+        });
+
+        // On suppose qu'après ces demi-finales, les vainqueurs iront en Finale, les perdants en Petite Finale
+        // Pour simplifier : on prend l'équipe la mieux classée de demiFinale1 et demiFinale2
+        const vainqueurDemi1 = (demiFinale1[0].score >= demiFinale1[1].score) ? demiFinale1[0] : demiFinale1[1];
+        const perdantDemi1   = (demiFinale1[0].score <  demiFinale1[1].score) ? demiFinale1[0] : demiFinale1[1];
+
+        const vainqueurDemi2 = (demiFinale2[0].score >= demiFinale2[1].score) ? demiFinale2[0] : demiFinale2[1];
+        const perdantDemi2   = (demiFinale2[0].score <  demiFinale2[1].score) ? demiFinale2[0] : demiFinale2[1];
+
+        Finale = [ vainqueurDemi1, vainqueurDemi2 ];
+        petite_finale = [ perdantDemi1, perdantDemi2 ];
+
+        const FinaleTbody = document.getElementById("finale");
+        FinaleTbody.innerHTML = "";
+        Finale.forEach((equipe, index) => {
+            FinaleTbody.innerHTML += `
+                <tr>
+                    <td>${equipe.nom}</td>
+                    <td><input type="number" class="score-input" id="finale-score-${index}" /></td>
+                </tr>
+            `;
+        });
+
+        const petite_finaleTbody = document.getElementById("petite finale");
+        petite_finaleTbody.innerHTML = "";
+        petite_finale.forEach((equipe, index) => {
+            petite_finaleTbody.innerHTML += `
+                <tr>
+                    <td>${equipe.nom}</td>
+                    <td><input type="number" class="score-input" id="pfinale-score-${index}" /></td>
+                </tr>
+            `;
+        });
+    }
+
+    // =========================
+    // Sauvegarde & chargement Firebase
+    // =========================
+    function sauvegarderScores() {
+        // -- 1) Scores initiaux (tableau principal)
+        const scores = [];
+        for (let i = 1; i <= 16; i++) {
+            const nom = document.getElementById(`team-name-${i}`).value || `Équipe ${i}`;
+            const score = parseInt(document.getElementById(`score-${i}`).value) || 0;
+            scores.push({ nom, score });
+        }
+
+        // Enregistrement dans la DB, chemin: "/scores"
+        database.ref('scores').set(scores)
+        .then(() => {
+            console.log('Scores initiaux sauvegardés dans Firebase.');
+        })
+        .catch((error) => {
+            console.error('Erreur de sauvegarde scores initiaux:', error);
+        });
+
+        // -- 2) Poules
+        const resultatsPoules = { poule1: [], poule2: [] };
+
+        // Sauvegarder les scores de Poule 1
+        poule1.forEach((equipe, i) => {
+            const score = parseInt(document.getElementById(`poule1-score-${i}`).value) || 0;
+            resultatsPoules.poule1.push({ nom: equipe.nom, score });
+        });
+
+        // Sauvegarder les scores de Poule 2
+        poule2.forEach((equipe, i) => {
+            const score = parseInt(document.getElementById(`poule2-score-${i}`).value) || 0;
+            resultatsPoules.poule2.push({ nom: equipe.nom, score });
+        });
+
+        database.ref('poules').set(resultatsPoules)
+        .then(() => {
+            console.log('Scores des poules sauvegardés dans Firebase.');
+        })
+        .catch((error) => {
+            console.error('Erreur de sauvegarde poules:', error);
+        });
+
+        // -- 3) Demi-Finales
+        const resultatsDemiFinales = { demiFinale1: [], demiFinale2: [] };
+
+        demiFinale1.forEach((equipe, i) => {
+            const score = parseInt(document.getElementById(`demi1-score-${i}`).value) || 0;
+            resultatsDemiFinales.demiFinale1.push({ nom: equipe.nom, score });
+        });
+
+        demiFinale2.forEach((equipe, i) => {
+            const score = parseInt(document.getElementById(`demi2-score-${i}`).value) || 0;
+            resultatsDemiFinales.demiFinale2.push({ nom: equipe.nom, score });
+        });
+
+        database.ref('demiFinales').set(resultatsDemiFinales)
+        .then(() => {
+            console.log('Scores des demi-finales sauvegardés dans Firebase.');
+        })
+        .catch((error) => {
+            console.error('Erreur de sauvegarde demi-finales:', error);
+        });
+
+        // -- 4) Consolantes
+        const resultatsConsolantes = { consolante1: [], consolante2: [], consolante3: [] };
+        
+        consolante1.forEach((equipe, i) => {
+            const score = parseInt(document.getElementById(`conso1-score-${i}`).value) || 0;
+            resultatsConsolantes.consolante1.push({ nom: equipe.nom, score });
+        });
+
+        consolante2.forEach((equipe, i) => {
+            const score = parseInt(document.getElementById(`conso2-score-${i}`).value) || 0;
+            resultatsConsolantes.consolante2.push({ nom: equipe.nom, score });
+        });
+
+        consolante3.forEach((equipe, i) => {
+            const score = parseInt(document.getElementById(`conso3-score-${i}`).value) || 0;
+            resultatsConsolantes.consolante3.push({ nom: equipe.nom, score });
+        });
+
+        database.ref('consolantes').set(resultatsConsolantes)
+        .then(() => {
+            console.log('Scores des consolantes sauvegardés dans Firebase.');
+        })
+        .catch((error) => {
+            console.error('Erreur de sauvegarde consolantes:', error);
+        });
+
+        // -- 5) Finales
+        // On relit le score de la finale/petite finale (si déjà généré)
+        Finale.forEach((eq, i) => {
+            const score = parseInt(document.getElementById(`finale-score-${i}`)?.value) || 0;
+            eq.score = score;
+        });
+        petite_finale.forEach((eq, i) => {
+            const score = parseInt(document.getElementById(`pfinale-score-${i}`)?.value) || 0;
+            eq.score = score;
+        });
+
+        const resultatsFinales = {
+            finale: Finale.map(e => ({ nom: e.nom, score: e.score })),
+            petite_finale: petite_finale.map(e => ({ nom: e.nom, score: e.score }))
+        };
+
+        database.ref('finales').set(resultatsFinales)
+        .then(() => {
+            console.log('Scores des finales sauvegardés dans Firebase.');
+            alert('Toutes les données ont été sauvegardées sur Firebase !');
+        })
+        .catch((error) => {
+            console.error('Erreur de sauvegarde finales:', error);
+        });
+    }
+
+    function chargerScores() {
+        // On va tout charger depuis Firebase, puis remplir les inputs
+
+        // 1) Charger scores initiaux
+        database.ref('scores').once('value')
+        .then((snapshot) => {
+            const scores = snapshot.val();
+            if (!scores) return;  // Pas de données
+            // On suppose que "scores" est un tableau d'objets { nom, score }
+            scores.forEach((obj, index) => {
+                const i = index + 1; // car index part de 0
+                const nameInput = document.getElementById(`team-name-${i}`);
+                const scoreInput = document.getElementById(`score-${i}`);
+                if (nameInput) nameInput.value = obj.nom;
+                if (scoreInput) scoreInput.value = obj.score;
+            });
+
+            // Générer poules (affichage)
+            genererPoules();
+
+            // 2) Charger poules
+            return database.ref('poules').once('value');
+        })
+        .then((snapshotPoules) => {
+            const resultatsPoules = snapshotPoules.val();
+            if (resultatsPoules && resultatsPoules.poule1 && resultatsPoules.poule2) {
+                resultatsPoules.poule1.forEach((equipe, i) => {
+                    const input = document.getElementById(`poule1-score-${i}`);
+                    if (input) input.value = equipe.score;
+                });
+                resultatsPoules.poule2.forEach((equipe, i) => {
+                    const input = document.getElementById(`poule2-score-${i}`);
+                    if (input) input.value = equipe.score;
+                });
+            }
+
+            // Générer demi-finales et poules (visuel)
+            genererDemiFinalesEtPoules();
+
+            // 3) Charger Demi-Finales
+            return database.ref('demiFinales').once('value');
+        })
+        .then((snapshotDemi) => {
+            const resultatsDemi = snapshotDemi.val();
+            if (resultatsDemi && resultatsDemi.demiFinale1 && resultatsDemi.demiFinale2) {
+                resultatsDemi.demiFinale1.forEach((equipe, i) => {
+                    const input = document.getElementById(`demi1-score-${i}`);
+                    if (input) input.value = equipe.score;
+                });
+                resultatsDemi.demiFinale2.forEach((equipe, i) => {
+                    const input = document.getElementById(`demi2-score-${i}`);
+                    if (input) input.value = equipe.score;
+                });
+            }
+
+            // 4) Charger Consolantes
+            return database.ref('consolantes').once('value');
+        })
+        .then((snapshotCons) => {
+            const resultatsCons = snapshotCons.val();
+            if (resultatsCons) {
+                if (resultatsCons.consolante1) {
+                    resultatsCons.consolante1.forEach((equipe, i) => {
+                        const input = document.getElementById(`conso1-score-${i}`);
+                        if (input) input.value = equipe.score;
+                    });
+                }
+                if (resultatsCons.consolante2) {
+                    resultatsCons.consolante2.forEach((equipe, i) => {
+                        const input = document.getElementById(`conso2-score-${i}`);
+                        if (input) input.value = equipe.score;
+                    });
+                }
+                if (resultatsCons.consolante3) {
+                    resultatsCons.consolante3.forEach((equipe, i) => {
+                        const input = document.getElementById(`conso3-score-${i}`);
+                        if (input) input.value = equipe.score;
+                    });
+                }
+            }
+
+            // 5) Charger Finales
+            return database.ref('finales').once('value');
+        })
+        .then((snapshotFinales) => {
+            const resFinales = snapshotFinales.val();
+            if (resFinales) {
+                // On re-remplit nos tableaux
+                Finale = resFinales.finale || [];
+                petite_finale = resFinales.petite_finale || [];
+
+                // On recrée l'affichage (si besoin)
+                const FinaleTbody = document.getElementById("finale");
+                FinaleTbody.innerHTML = "";
+                Finale.forEach((equipe, index) => {
+                    FinaleTbody.innerHTML += `
+                        <tr>
+                            <td>${equipe.nom}</td>
+                            <td><input type="number" class="score-input" id="finale-score-${index}" value="${equipe.score || ''}"/></td>
+                        </tr>
+                    `;
+                });
+
+                const petite_finaleTbody = document.getElementById("petite finale");
+                petite_finaleTbody.innerHTML = "";
+                petite_finale.forEach((equipe, index) => {
+                    petite_finaleTbody.innerHTML += `
+                        <tr>
+                            <td>${equipe.nom}</td>
+                            <td><input type="number" class="score-input" id="pfinale-score-${index}" value="${equipe.score || ''}" /></td>
+                        </tr>
+                    `;
+                });
+            }
+        })
+        .catch((error) => {
+            console.error('Erreur au chargement :', error);
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const tbody = document.getElementById('classement');
+        for (let i = 1; i <= 16; i++) {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${i}</td>
+                <td><input type="text" class="team-name-input" id="team-name-${i}" value="Équipe ${i}" /></td>
+                <td><input type="number" class="score-input" id="score-${i}" /></td>
+            `;
+            tbody.appendChild(row);
+        }
+
+        // Charger depuis Firebase
+        chargerScores();
+    });
+    </script>
 </head>
 <body>
 
@@ -258,10 +742,11 @@
         </table>
 
         <button onclick="sauvegarderScores()">Sauvegarder Scores</button>
-        <button onclick="window.location.href='liste_jeux.html'" style="padding: 10px 20px; background: #53f08c; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 1em;">liste jeux </button>
+        <button onclick="window.location.href='liste_jeux.html'"
+            style="padding: 10px 20px; background: #53f08c; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 1em;">
+            liste jeux
+        </button>
         
-        
-
         <div class="section">
             <h2>Poules</h2>
             <div class="poules-container">
@@ -299,6 +784,8 @@
             </div>
         </div>
 
+        <!-- Bouton pour générer Demi-Finales et Poules Additionnelles -->
+        <button onclick="genererDemiFinalesEtPoules()">Générer Demi-Finales & Consolantes</button>
 
         <div class="section">
             <h2>Demi-Finales</h2>
@@ -429,348 +916,5 @@
         </div>
 
     </div>
-
-    <script>
-        let poule1 = [];
-        let poule2 = [];
-        let demiFinales = [];
-        let poulesAdditionnelles = [];
-
-        
-        
-        function genererPoules() {
-            const equipes = [];
-            for (let i = 1; i <= 16; i++) {
-                const score = parseInt(document.getElementById(`score-${i}`).value) || 0;
-                equipes.push({ id: i, nom: document.getElementById(`team-name-${i}`).value });
-            }
-
-            // Trier les équipes par score décroissant
-            equipes.sort((a, b) => b.score - a.score);
-
-            // Répartition selon le critère spécifié
-            poule1 = [
-                equipes[0], equipes[2], equipes[4], equipes[6],
-                equipes[9], equipes[11], equipes[13], equipes[15]
-            ];
-            poule2 = [
-                equipes[1], equipes[3], equipes[5], equipes[7],
-                equipes[8], equipes[10], equipes[12], equipes[14]
-            ];
-
-            // Remplir Poule 1
-            const poule1Tbody = document.getElementById("poule1");
-            poule1Tbody.innerHTML = "";
-            poule1.forEach((equipe, i) => {
-                poule1Tbody.innerHTML += `
-                    <tr>
-                        <td>${equipe.nom}</td>
-                        <td><input type="number" class="score-input" id="poule1-score-${i}" /></td>
-                    </tr>
-                `;
-            });
-
-            // Remplir Poule 2
-            const poule2Tbody = document.getElementById("poule2");
-            poule2Tbody.innerHTML = "";
-            poule2.forEach((equipe, i) => {
-                poule2Tbody.innerHTML += `
-                    <tr>
-                        <td>${equipe.nom}</td>
-                        <td><input type="number" class="score-input" id="poule2-score-${i}" /></td>
-                    </tr>
-                `;
-            });
-        }
-
-        function genererDemiFinalesEtPoules() {
-            poule1.forEach((equipe, i) => {
-                equipe.score = parseInt(document.getElementById(`poule1-score-${i}`).value) || 0;
-            });
-            poule2.forEach((equipe, i) => {
-                equipe.score = parseInt(document.getElementById(`poule2-score-${i}`).value) || 0;
-            });
-
-            poule1.sort((a, b) => b.score - a.score);
-            poule2.sort((a, b) => b.score - a.score);
-
-            // Demi-Finales
-            demiFinale1 = [
-                { nom: poule1[0].nom, score: poule1[0].score },
-                { nom: poule2[1].nom, score: poule2[1].score }
-            ];
-            demiFinale2 = [
-                { nom: poule2[0].nom, score: poule2[0].score },
-                { nom: poule1[1].nom, score: poule1[1].score }
-            ];
-
-
-            const demiFinale1Tbody = document.getElementById("demi-finale1");
-            demiFinale1Tbody.innerHTML = "";
-            demiFinale1.forEach((equipe, index) => {
-                demiFinale1Tbody.innerHTML += `
-                    <tr>
-                        <td>${equipe.nom}</td>
-                        <td><input type="number" class="score-input" id="demi1-score-${index}" /></td>
-                    </tr>
-                `;
-            });
-
-            const demiFinale2Tbody = document.getElementById("demi-finale2");
-            demiFinale2Tbody.innerHTML = "";
-            demiFinale2.forEach((equipe, index) => {
-                demiFinale2Tbody.innerHTML += `
-                    <tr>
-                        <td>${equipe.nom}</td>
-                        <td><input type="number" class="score-input" id="demi2-score-${index}" /></td>
-                    </tr>
-                `;
-            });
-
-            //Consolantes
-            consolante1 = [
-                { nom: poule1[2].nom, score: poule1[2].score },
-                { nom: poule2[2].nom, score: poule2[2].score },
-                { nom: poule1[3].nom, score: poule1[3].score },
-                { nom: poule2[3].nom, score: poule2[3].score }
-            ];
-
-            consolante2 = [
-                { nom: poule2[4].nom, score: poule2[4].score },
-                { nom: poule1[4].nom, score: poule1[4].score },
-                { nom: poule1[5].nom, score: poule1[5].score },
-                { nom: poule2[5].nom, score: poule2[5].score }
-            ];
-
-            consolante3 = [
-                { nom: poule2[6].nom, score: poule2[6].score },
-                { nom: poule1[6].nom, score: poule1[6].score },
-                { nom: poule1[7].nom, score: poule1[7].score },
-                { nom: poule2[7].nom, score: poule2[7].score }
-            ];
-
-            const consolante1Tbody = document.getElementById("consolante1");
-            consolante1Tbody.innerHTML = "";
-            consolante1.forEach((equipe, index) => {
-                consolante1Tbody.innerHTML += `
-                    <tr>
-                        <td>${equipe.nom}</td>
-                        <td><input type="number" class="score-input" id="conso1-score-${index}" /></td>
-                    </tr>
-                `;
-            });
-
-            const consolante2Tbody = document.getElementById("consolante2");
-            consolante2Tbody.innerHTML = "";
-            consolante2.forEach((equipe, index) => {
-                consolante2Tbody.innerHTML += `
-                    <tr>
-                        <td>${equipe.nom}</td>
-                        <td><input type="number" class="score-input" id="conso2-score-${index}" /></td>
-                    </tr>
-                `;
-            });
-
-            const consolante3Tbody = document.getElementById("consolante3");
-            consolante3Tbody.innerHTML = "";
-            consolante3.forEach((equipe, index) => {
-                consolante3Tbody.innerHTML += `
-                    <tr>
-                        <td>${equipe.nom}</td>
-                        <td><input type="number" class="score-input" id="conso3-score-${index}" /></td>
-                    </tr>
-                `;
-            });
-        }
-
-        function genererFinales() {
-            const finaleTbody = document.getElementById("finales");
-            // Finales
-            Finale = [
-                { nom: demiFinale1[0].nom, score: demiFinale1[0].score },
-                { nom: demiFinale2[0].nom, score: demiFinale2[0].score }
-            ];
-            petite_finale = [
-                { nom: poule2[1].nom, score: poule2[1].score },
-                { nom: poule1[1].nom, score: poule1[1].score }
-            ];
-
-            const FinaleTbody = document.getElementById("finale");
-            FinaleTbody.innerHTML = "";
-            Finale.forEach((equipe, index) => {
-                FinaleTbody.innerHTML += `
-                    <tr>
-                        <td>${equipe.nom}</td>
-                        <td><input type="number" class="score-input" id="finale-score-${index}" /></td>
-                    </tr>
-                `;
-            });
-
-            const petite_finaleTbody = document.getElementById("petite finale");
-            petite_finaleTbody.innerHTML = "";
-            petite_finale.forEach((equipe, index) => {
-                petite_finaleTbody.innerHTML += `
-                    <tr>
-                        <td>${equipe.nom}</td>
-                        <td><input type="number" class="score-input" id="pfinale-score-${index}" /></td>
-                    </tr>
-                `;
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const tbody = document.getElementById('classement');
-            for (let i = 1; i <= 16; i++) {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${i}</td>
-                    <td><input type="text" class="team-name-input" id="team-name-${i}" value="Équipe ${i}" /></td>
-                    <td><input type="number" class="score-input" id="score-${i}" /></td>
-                `;
-                tbody.appendChild(row);
-            }
-            chargerScores();
-        });
-        function sauvegarderScores() {
-            const scores = [];
-            for (let i = 1; i <= 16; i++) {
-                const nom = document.getElementById(`team-name-${i}`).value || `Équipe ${i}`;
-                const score = parseInt(document.getElementById(`score-${i}`).value) || 0;
-                scores.push({nom, score});
-            }
-            localStorage.setItem('scores', JSON.stringify(scores));
-            alert('Scores sauvegardés !');
-
-            const resultatsPoules = { poule1: [], poule2: [] };
-
-            // Sauvegarder les scores de Poule 1
-            poule1.forEach((equipe, i) => {
-                const score = parseInt(document.getElementById(`poule1-score-${i}`).value) || 0;
-                resultatsPoules.poule1.push({ nom: equipe.nom, score });
-            });
-
-            // Sauvegarder les scores de Poule 2
-            poule2.forEach((equipe, i) => {
-                const score = parseInt(document.getElementById(`poule2-score-${i}`).value) || 0;
-                resultatsPoules.poule2.push({ nom: equipe.nom, score });
-            });
-
-            localStorage.setItem('resultatsPoules', JSON.stringify(resultatsPoules));
-            
-            const resultatsDemiFinales = {demiFinale1: [], demiFinale2: []};
-
-            // Sauvegarder les scores de la demi Finale 1
-            demiFinale1.forEach((equipe, i) => {
-                const score = parseInt(document.getElementById(`demi1-score-${i}`).value) || 0;
-                resultatsDemiFinales.demiFinale1.push({ nom: equipe.nom, score });
-            });
-
-            // Sauvegarder les scores de la demi Finale 2
-            demiFinale2.forEach((equipe, i) => {
-                const score = parseInt(document.getElementById(`demi2-score-${i}`).value) || 0;
-                resultatsDemiFinales.demiFinale2.push({ nom: equipe.nom, score });
-            });
-
-            localStorage.setItem('resultatsDemiFinales', JSON.stringify(resultatsDemiFinales));
-
-            const resultatsConsolantes = {consolante1: [], consolante2: [], consolante3: []};
-            
-            // Sauvegarder les scores de la consolante 1
-            consolante1.forEach((equipe, i) => {
-                const score = parseInt(document.getElementById(`conso1-score-${i}`).value) || 0;
-                resultatsConsolantes.consolante1.push({ nom: equipe.nom, score });
-            });
-
-            // Sauvegarder les scores de la consolante 2
-            consolante2.forEach((equipe, i) => {
-                const score = parseInt(document.getElementById(`conso2-score-${i}`).value) || 0;
-                resultatsConsolantes.consolante2.push({ nom: equipe.nom, score });
-            });
-
-            // Sauvegarder les scores de la consolante 3
-            consolante3.forEach((equipe, i) => {
-                const score = parseInt(document.getElementById(`conso3-score-${i}`).value) || 0;
-                resultatsConsolantes.consolante3.push({ nom: equipe.nom, score });
-            });
-
-            localStorage.setItem('resultatsConsolantes', JSON.stringify(resultatsConsolantes));
-        }
-
-        function chargerScores() {
-            const scores = JSON.parse(localStorage.getItem('scores')) || [];
-            scores.forEach((score, i) => {
-                const nameInput = document.getElementById(`team-name-${i + 1}`);
-                const scoreInput = document.getElementById(`score-${i + 1}`);
-                if (scoreInput) scoreInput.value = score.score;
-                if (nameInput) nameInput.value = score.nom;
-            });
-            genererPoules();
-
-            const resultatsPoules = JSON.parse(localStorage.getItem('resultatsPoules')) || { poule1: [], poule2: [] };
-
-            // Charger les scores de Poule 1
-            resultatsPoules.poule1.forEach((equipe, i) => {
-                const input = document.getElementById(`poule1-score-${i}`);
-                if (input) {
-                    input.value = equipe.score;
-                }
-            });
-
-            // Charger les scores de Poule 2
-            resultatsPoules.poule2.forEach((equipe, i) => {
-                const input = document.getElementById(`poule2-score-${i}`);
-                if (input) {
-                    input.value = equipe.score;
-                }
-            });
-            genererDemiFinalesEtPoules();
-
-            const resultatsDemiFinales = JSON.parse(localStorage.getItem('resultatsDemiFinales')) || { demiFinale1: [], demiFinale2: [] };
-
-            // Charger les scores de Demi finale 1
-            resultatsDemiFinales.demiFinale1.forEach((equipe, i) => {
-                const input = document.getElementById(`demi1-score-${i}`);
-                if (input) {
-                    input.value = equipe.score;
-                }
-            });
-
-            // Charger les scores de Demi finale 2
-            resultatsDemiFinales.demiFinale2.forEach((equipe, i) => {
-                const input = document.getElementById(`demi2-score-${i}`);
-                if (input) {
-                    input.value = equipe.score;
-                }
-            });
-
-            const resultatsConsolantes = JSON.parse(localStorage.getItem('resultatsConsolantes')) || { consolante1: [], consolante2: [], consolante3: [] };
-
-            // Charger les scores de Consolante 1
-            resultatsConsolantes.consolante1.forEach((equipe, i) => {
-                const input = document.getElementById(`conso1-score-${i}`);
-                if (input) {
-                    input.value = equipe.score;
-                }
-            });
-
-            // Charger les scores de Consolante 2
-            resultatsConsolantes.consolante2.forEach((equipe, i) => {
-                const input = document.getElementById(`conso2-score-${i}`);
-                if (input) {
-                    input.value = equipe.score;
-                }
-            });
-
-            // Charger les scores de Consolante 3
-            resultatsConsolantes.consolante3.forEach((equipe, i) => {
-                const input = document.getElementById(`conso3-score-${i}`);
-                if (input) {
-                    input.value = equipe.score;
-                }
-            });
-
-        }
-    </script>
-
 </body>
 </html>
